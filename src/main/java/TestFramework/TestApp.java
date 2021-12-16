@@ -14,13 +14,12 @@ package TestFramework;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TestApp {
-private static Method[] methods;
 
+    private static Method[] methods;
     private TestApp() {
     }
 
@@ -70,17 +69,20 @@ private static Method[] methods;
     }
 
     private static void test() {
-        Arrays.stream(methods).
+        List<Method> list = Arrays.stream(methods).
                 filter(x -> x.getAnnotation(Test.class) != null).
-                forEach(x -> {
-                    try {
-                        x.invoke(null);
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
-                });
+                sorted(new TestComparator()).
+                collect(Collectors.toList());
+
+        for (Method method : list) {
+            try {
+                method.invoke(null);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private static void checkAnnotation() {
@@ -98,6 +100,4 @@ private static Method[] methods;
             throw new RuntimeException("Annotation After/Before must be only one!");
         }
     }
-
-
 }

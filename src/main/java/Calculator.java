@@ -7,6 +7,6 @@ public class Calculator {
         if(b == 0){
             throw new RuntimeException("Деление на ноль!");
         }
-        return a/b;
+        return a%b;
     }
 }

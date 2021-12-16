@@ -14,9 +14,9 @@ public class TestCalculator {
         }
     }
 
-    @Test(priority = 1)
+    @Test()
     public static void testDiv(){
-        if(calculator.div(10,2)==4){
+        if(calculator.div(10,2)==5){
             System.out.println("test ok");
         }else {
             System.out.println("test fail");
@@ -31,12 +31,14 @@ public class TestCalculator {
 
     @AfterSuite
     public static void end(){
-        System.out.println("здесь могло бы быть закрытие ресурсов!");
+        System.out.println("afterSuite is done");
     }
-    /*
+/*
     @AfterSuite
     public static void wrongMethod(){
         System.out.println("ERROR!");
     }
-     */
+
+ */
+
 }
