@@ -12,16 +12,20 @@ package TestFramework;
 необходимо бросить RuntimeException при запуске «тестирования».
  */
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class TestApp {
-private static Class clazz;
+private static Method[] methods;
 
     private TestApp() {
     }
 
     public static void start(Class clazz){
-        TestApp.clazz = clazz;
+        TestApp.methods = clazz.getMethods();
         checkAnnotation();
         beforeSuite();
         test();
@@ -38,19 +42,48 @@ private static Class clazz;
 
 
     private static void beforeSuite(){
-
+        Arrays.stream(methods).
+                filter(x -> x.getAnnotation(BeforeSuite.class) != null).
+                    forEach(x -> {
+                        try {
+                            x.invoke(null);
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        } catch (InvocationTargetException e) {
+                            e.printStackTrace();
+                        }
+                    });
     }
 
     private static void afterSuite(){
-
+        Arrays.stream(methods).
+                filter(x -> x.getAnnotation(AfterSuite.class) != null).
+                forEach(x -> {
+                    try {
+                        x.invoke(null);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                });
     }
 
-    private static void test(){
-
+    private static void test() {
+        Arrays.stream(methods).
+                filter(x -> x.getAnnotation(Test.class) != null).
+                forEach(x -> {
+                    try {
+                        x.invoke(null);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                });
     }
 
     private static void checkAnnotation() {
-        Method[] methods = TestApp.clazz.getMethods();
         int containBefore = 0;
         int containAfter = 0;
         for (Method method : methods) {
@@ -65,5 +98,6 @@ private static Class clazz;
             throw new RuntimeException("Annotation After/Before must be only one!");
         }
     }
+
 
 }
