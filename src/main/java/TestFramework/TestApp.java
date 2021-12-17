@@ -71,14 +71,10 @@ public class TestApp {
     }
 
     private static void test() {
-        System.out.println(Arrays.toString(methods));
-
         List<Method> list = Arrays.stream(methods).
                 filter(x -> x.getAnnotation(Test.class) != null).
                 sorted(new TestComparator()).
                 collect(Collectors.toList());
-
-        System.out.println(list);
 
         for (Method method : list) {
             int modifiers = method.getModifiers();
