@@ -6,7 +6,7 @@ public class TestCalculator {
     private static Calculator calculator;
 
     @Test()
-    public static void testSum(){
+    private static void testSum(){
         if(calculator.sum(1,1)==2){
             System.out.println("test ok");
         }else {

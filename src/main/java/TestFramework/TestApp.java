@@ -14,6 +14,7 @@ package TestFramework;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,7 +25,8 @@ public class TestApp {
     }
 
     public static void start(Class clazz){
-        TestApp.methods = clazz.getMethods();
+        TestApp.methods = clazz.getDeclaredMethods();
+
         checkAnnotation();
         beforeSuite();
         test();
@@ -57,7 +59,7 @@ public class TestApp {
     private static void afterSuite(){
         Arrays.stream(methods).
                 filter(x -> x.getAnnotation(AfterSuite.class) != null).
-                forEach(x -> {
+                    forEach(x -> {
                     try {
                         x.invoke(null);
                     } catch (IllegalAccessException e) {
@@ -69,12 +71,20 @@ public class TestApp {
     }
 
     private static void test() {
+        System.out.println(Arrays.toString(methods));
+
         List<Method> list = Arrays.stream(methods).
                 filter(x -> x.getAnnotation(Test.class) != null).
                 sorted(new TestComparator()).
                 collect(Collectors.toList());
 
+        System.out.println(list);
+
         for (Method method : list) {
+            int modifiers = method.getModifiers();
+            if (Modifier.isPrivate(modifiers)) {
+                method.setAccessible(true);
+            }
             try {
                 method.invoke(null);
             } catch (IllegalAccessException e) {
