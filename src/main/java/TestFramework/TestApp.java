@@ -18,36 +18,47 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class TestApp {
-
+public class TestApp<T> {
     private static Method[] methods;
     private TestApp() {
     }
 
-    public static void start(Class clazz){
+    public  static <T> void start(Class<T> clazz){
+        T instance = null;
+        try {
+            instance = clazz.getConstructor().newInstance();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
         TestApp.methods = clazz.getDeclaredMethods();
 
         checkAnnotation();
-        beforeSuite();
-        test();
-        afterSuite();
+        beforeSuite(instance);
+        test(instance);
+        afterSuite(instance);
     }
 
-    public static void start(String className){
+    public static <T> void start(String className){
         try {
-            start(Class.forName(className));
+            start((Class<T>) Class.forName(className));
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
 
-    private static void beforeSuite(){
+    private static <T> void beforeSuite(T instance){
         Arrays.stream(methods).
                 filter(x -> x.getAnnotation(BeforeSuite.class) != null).
                     forEach(x -> {
                         try {
-                            x.invoke(null);
+                            x.invoke(instance);
                         } catch (IllegalAccessException e) {
                             e.printStackTrace();
                         } catch (InvocationTargetException e) {
@@ -56,12 +67,12 @@ public class TestApp {
                     });
     }
 
-    private static void afterSuite(){
+    private static <T> void afterSuite(T instance){
         Arrays.stream(methods).
                 filter(x -> x.getAnnotation(AfterSuite.class) != null).
                     forEach(x -> {
                     try {
-                        x.invoke(null);
+                        x.invoke(instance);
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     } catch (InvocationTargetException e) {
@@ -70,7 +81,7 @@ public class TestApp {
                 });
     }
 
-    private static void test() {
+    private static <T> void test(T instance) {
         List<Method> list = Arrays.stream(methods).
                 filter(x -> x.getAnnotation(Test.class) != null).
                 sorted(new TestComparator()).
@@ -82,7 +93,7 @@ public class TestApp {
                 method.setAccessible(true);
             }
             try {
-                method.invoke(null);
+                method.invoke(instance);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InvocationTargetException e) {
